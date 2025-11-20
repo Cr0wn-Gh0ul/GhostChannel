@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ghostchannel-postgres
+    environment:
+      POSTGRES_USER: ghostchannel
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: ghostchannel
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ghostchannel-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ghostchannel"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ghostchannel-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ghostchannel-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  ghostchannel-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
